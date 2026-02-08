@@ -2,6 +2,7 @@ import argparse
 import importlib
 from itertools import product
 import time
+import aliasing as al
 
 import numpy as np
 
@@ -11,7 +12,6 @@ import matplotlib.pyplot as plt
 def main(args):
     xmin, xmax, ymin, ymax = args.window
     width, height = args.resolution
-    aliasing_filter = args.aliasing
     samples_per_pixel = args.samples_per_pixel
 
     # create tensor for image: RGB
@@ -24,33 +24,66 @@ def main(args):
     # load scene from file args.scene
     scene = importlib.import_module(args.scene).Scene()
 
-    # uniforme pra pegar os pontos
-
-    #b-a/N somatorio das f's
-
-
     # for each pixel, determine if it is inside any primitive in the scene
     # use cartesian product for efficiency
     for j, i in tqdm(product(range(height), range(width)), total=height*width):
         point = (x_coords[i], y_coords[j])
+
+        N = args.samples_per_pixel
+
+        # generate points
+        generated_points = al.aliasing_filter(args.aliasing,args.sigma,N)
+
         # set background color
-        image[j, i] = list(scene.background.as_list())
-        # if point is inside any primitive, set pixel color to that primitive's color
-        for primitive, color in scene:
-            inside = primitive.in_out(point)
-            if inside:
-                # Simple shading: use the red channel as intensity
-                image[j, i] = [color.r, color.g, color.b]
-                break  # Stop at the first primitive that contains the point
+        bg_color = list(scene.background.as_list())
+        image[j, i] = bg_color
+
+        #create summation array
+        pixel_color = np.array([0.0, 0.0, 0.0])
+
+        for x,y in generated_points:
+            new_point = (point[0] + x, point[1] + y)
+
+            '''if args.aliasing == 'hat':
+                weight = 4 * (1 - abs(x)/args.sigma) * (1 - abs(y)/args.sigma)
+            else:
+                weight = 1.0
+            '''
+
+            sample_color = None
+
+            # if point is inside any primitive, set pixel color to that primitive's color
+            for primitive, color in scene:
+                inside = primitive.in_out(new_point)
+                if inside:
+                    # Simple shading: use the red channel as intensity
+                    sample_color = [color.r, color.g, color.b]
+                    break
+                
+            if sample_color is None:
+                sample_color = bg_color
+
+            pixel_color[0] += sample_color[0] 
+            pixel_color[1] += sample_color[1] 
+            pixel_color[2] += sample_color[2] 
+
+        pixel_color[0] /= N
+        pixel_color[1] /= N
+        pixel_color[2] /= N
+        
+        if np.any(pixel_color):
+            image[j, i] = pixel_color
+
+    # stability guarantee
+    image = np.clip(image, 0, 1)
 
     # save image as png using matplotlib
     plt.imsave(args.output, image, vmin=0, vmax=1, origin='lower')
 
-# implementar gradiente?
 
 if __name__ == "__main__":
     raster_scene = 'implicit_scene'
-
+    aliasing_type = 'hat'
     # lion scene window = [-200, 400, -30, 420]
 
     resolutions = [(256,144),(426,240),(480,360),(640,480),(1280,720),(1920,1080),(2560,1440),(3840,2560)]
@@ -60,9 +93,10 @@ if __name__ == "__main__":
         parser.add_argument('-s', '--scene', type=str, help='Scene name', default=raster_scene)
         parser.add_argument('-w', '--window', type=float, nargs=4, help='Window: xmin xmax ymin ymax', default=[-3, 3, -3, 3])
         parser.add_argument('-r', '--resolution', type=int, nargs=2, help='Resolution: width height', default=[resolution[0], resolution[1]])
-        parser.add_argument('-a', '--aliasing', type=str, help='Anti Aliasing Filter', default='escrever algo aqui')
-        parser.add_argument('-p', '--samples_per_pixel', type=int, help='Samples per Pixel', default='escrever algo aqui')
-        parser.add_argument('-o', '--output', type=str, help='Output file name', default=f'output/output_{raster_scene}_{resolution[0]}x{resolution[1]}.png')
+        parser.add_argument('-a', '--aliasing', type=str, help='Anti Aliasing Filter', default=aliasing_type)
+        parser.add_argument('-p', '--samples_per_pixel', type=int, help='Samples per Pixel', default='100')
+        parser.add_argument('-q', '--sigma', type=float, help='Sigma for point distributions', default='0.05')
+        parser.add_argument('-o', '--output', type=str, help='Output file name', default=f'output/tarefa 3/hat/output_{raster_scene}_{resolution[0]}x{resolution[1]}_{aliasing_type}.png')
         args = parser.parse_args()
         main(args)
     final = time.time() - inicio
