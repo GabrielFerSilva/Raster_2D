@@ -9,4 +9,4 @@ class Scene(BaseScene):
 
         # Add some triangles to the scene
         self.add(Triangle((1.0, 1.0), (3.0, 1.0), (2.0, 3.0)), Color(1.0, 0.0, 0.0))  # Red triangle
-        self.add(Triangle((2.0, 3.0), (3.0, 1.0), (4.0, 4.0)), Color(0.0, 0.0, 1.0))  # Blue triangle
+        self.add(Triangle((2.0, 3.05), (3.0, 1.05), (4.0, 4.0)), Color(0.0, 0.0, 1.0))  # Blue triangle

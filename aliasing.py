@@ -8,6 +8,8 @@ def aliasing_filter(string,sigma,N):
         return hat(N,sigma)
     elif string.lower() == 'gaussian':
         return gaussian(N,sigma)
+    elif string.lower() == 'none':
+        return [0,0]
 
 def box(N,sigma):
     return np.random.uniform(-sigma, sigma, size=(N, 2))

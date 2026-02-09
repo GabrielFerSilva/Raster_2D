@@ -44,12 +44,6 @@ def main(args):
         for x,y in generated_points:
             new_point = (point[0] + x, point[1] + y)
 
-            '''if args.aliasing == 'hat':
-                weight = 4 * (1 - abs(x)/args.sigma) * (1 - abs(y)/args.sigma)
-            else:
-                weight = 1.0
-            '''
-
             sample_color = None
 
             # if point is inside any primitive, set pixel color to that primitive's color
@@ -63,16 +57,13 @@ def main(args):
             if sample_color is None:
                 sample_color = bg_color
 
-            pixel_color[0] += sample_color[0] 
-            pixel_color[1] += sample_color[1] 
-            pixel_color[2] += sample_color[2] 
+            pixel_color += sample_color
 
         pixel_color[0] /= N
         pixel_color[1] /= N
         pixel_color[2] /= N
         
-        if np.any(pixel_color):
-            image[j, i] = pixel_color
+        image[j, i] = pixel_color
 
     # stability guarantee
     image = np.clip(image, 0, 1)
@@ -82,21 +73,22 @@ def main(args):
 
 
 if __name__ == "__main__":
-    raster_scene = 'implicit_scene'
+    raster_scene = 'lion_scene'
     aliasing_type = 'hat'
     # lion scene window = [-200, 400, -30, 420]
+    # output_{raster_scene}_{resolution[0]}x{resolution[1]}_{aliasing_type}
 
-    resolutions = [(256,144),(426,240),(480,360),(640,480),(1280,720),(1920,1080),(2560,1440),(3840,2560)]
+    resolutions = [(256,144)]
     inicio = time.time()
     for resolution in resolutions:
         parser = argparse.ArgumentParser(description="Raster module main function")
         parser.add_argument('-s', '--scene', type=str, help='Scene name', default=raster_scene)
-        parser.add_argument('-w', '--window', type=float, nargs=4, help='Window: xmin xmax ymin ymax', default=[-3, 3, -3, 3])
+        parser.add_argument('-w', '--window', type=float, nargs=4, help='Window: xmin xmax ymin ymax', default=[-200, 400, -30, 420])
         parser.add_argument('-r', '--resolution', type=int, nargs=2, help='Resolution: width height', default=[resolution[0], resolution[1]])
         parser.add_argument('-a', '--aliasing', type=str, help='Anti Aliasing Filter', default=aliasing_type)
         parser.add_argument('-p', '--samples_per_pixel', type=int, help='Samples per Pixel', default='100')
-        parser.add_argument('-q', '--sigma', type=float, help='Sigma for point distributions', default='0.05')
-        parser.add_argument('-o', '--output', type=str, help='Output file name', default=f'output/tarefa 3/hat/output_{raster_scene}_{resolution[0]}x{resolution[1]}_{aliasing_type}.png')
+        parser.add_argument('-q', '--sigma', type=float, help='Sigma for point distributions', default='1')
+        parser.add_argument('-o', '--output', type=str, help='Output file name', default=f'output/tarefa 3/hat/tigrinho_hat.png')
         args = parser.parse_args()
         main(args)
     final = time.time() - inicio

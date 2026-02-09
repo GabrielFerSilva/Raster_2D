@@ -40,7 +40,7 @@ def main(args):
     plt.imsave(args.output, image, vmin=0, vmax=1, origin='lower')
 
 if __name__ == "__main__":
-    raster_scene = 'implicit_scene'
+    raster_scene = 'triangle_scene'
 
     # lion scene window = [-200, 400, -30, 420]
 
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     for resolution in resolutions:
         parser = argparse.ArgumentParser(description="Raster module main function")
         parser.add_argument('-s', '--scene', type=str, help='Scene name', default=raster_scene)
-        parser.add_argument('-w', '--window', type=float, nargs=4, help='Window: xmin xmax ymin ymax', default=[-3, 3, -3, 3])
+        parser.add_argument('-w', '--window', type=float, nargs=4, help='Window: xmin xmax ymin ymax', default=[-3, 30, -3, 30])
         parser.add_argument('-r', '--resolution', type=int, nargs=2, help='Resolution: width height', default=[resolution[0], resolution[1]])
         parser.add_argument('-a', '--aliasing', type=str, help='Anti Aliasing Filter', default='box')
         parser.add_argument('-p', '--samples_per_pixel', type=int, help='Samples per Pixel', default='100')
