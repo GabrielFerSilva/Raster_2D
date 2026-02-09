@@ -1,3 +1,8 @@
+# Temas de Computação Visual - 2026 (IMPA)
+
+Projeto: Rasterização de Imagens
+Este repositório contém a implementação dos trabalhos práticos relacionados ao tópico de Rasterização de Imagens, desenvolvido para a disciplina de Temas de Computação Visual no Instituto Nacional de Matemática Pura e Aplicada (IMPA).
+
 # Raster
 
 Na linha de comando execute os seguintes comandos (só é necessário fazer isso uma vez):
